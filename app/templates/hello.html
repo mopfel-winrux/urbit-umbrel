@@ -3,20 +3,22 @@
 <h1> Welcome to Urbit for Umbrel</h1>
 
 <h2>Select a Pier</h2>
-   <form action = "/boot" method = "POST" name="boot_list">
+   <form action = "/boot" method = "POST"
+         enctype = "multipart/form-data">
          {% for pier in piers %}
-         <input type="radio" name="boot" id="{{ pier }}" > {{ pier }} </input><br>
+         <input type="radio" name="boot" value="{{ pier }}" > {{ pier }} </input><br>
          {% endfor %}
          {% for key in keys %}
-         <input type="radio" name="boot" id="{{ key }}" > {{ key }} </input><br>
+         <input type="radio" name="boot" value="{{ key }}" > {{ key }} </input><br>
          {% endfor %}
-         <input type = "submit" value="Boot"/>
+         <input type = "submit" value="Boot" name="boot_button"/>
+   </form>
 
 
 <h2>Upload a keyfile</h2>
    <form action = "/upload_key" method = "POST" 
          enctype = "multipart/form-data">
-      <input type = "file" name = "file" accept=".txt, .keyfile, .hex" />
+      <input type = "file" name = "file" accept=".key" />
       <input type = "submit" value="Upload"/>
    </form> 
 

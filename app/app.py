@@ -8,10 +8,12 @@ from werkzeug.utils import secure_filename
 
 UPLOAD_KEY = './keys'
 UPLOAD_PIER = './piers'
+AMES_PORT = 34343
 
 app = Flask(__name__)
 app.config['UPLOAD_KEY'] = UPLOAD_KEY
 app.config['UPLOAD_PIER'] = UPLOAD_PIER
+app.config['AMES_PORT'] = AMES_PORT
 
 @app.route("/")
 def hello_world():
@@ -19,7 +21,7 @@ def hello_world():
 
 
 def get_keys():
-    keys = glob.glob(os.path.join(app.config['UPLOAD_KEY'], '*.txt'))
+    keys = glob.glob(os.path.join(app.config['UPLOAD_KEY'], '*.key'))
     return keys
 
 def get_piers():
@@ -30,17 +32,24 @@ def get_piers():
 def boot():
     if request.method == 'POST':
         pier = request.form['boot']
-        if pier.endswith('txt'):
+        if pier.endswith('key'):
             #TODO Boot up a new pier with keyfile
+            cmd = './boot_key.sh %s %s'%(pier, AMES_PORT)
+            print(cmd)
+            
             pass
         elif pier.endswith('/'):
             #TODO Boot up the old pier
+            cmd = './boot_pier.sh %s %s'%(pier, AMES_PORT)
+            print(cmd)
             pass
     return redirect("/")
 
 
 @app.route('/boot_new_comet', methods=['GET', 'POST'])
 def boot_new_comet():
+    cmd = './boot_new_comet.sh %s'%(AMES_PORT)
+    print(cmd)
     # TODO: Write code that calls urbit comet bootup
     return redirect("/")
 
@@ -90,3 +99,8 @@ def upload_pier():
 
         os.remove(os.path.join(app.config['UPLOAD_PIER'], filename))
     return redirect("/")
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
