@@ -32,8 +32,10 @@ def boot():
         pier = request.form['boot']
         if pier.endswith('txt'):
             #TODO Boot up a new pier with keyfile
+            pass
         elif pier.endswith('/'):
             #TODO Boot up the old pier
+            pass
     return redirect("/")
 
 
