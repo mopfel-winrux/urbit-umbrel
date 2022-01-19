@@ -13,7 +13,12 @@
          {% endfor %}
          <input type = "submit" value="Boot" name="boot_button"/>
    </form>
+   
+   {% if code %}
+   <h3> Current Pier's +code </h3>
+      <p> +code for currently running pier is: {{ code }} </p>
 
+   {% endif %}
 
 <h2>Upload a keyfile</h2>
    <form action = "/upload_key" method = "POST" 

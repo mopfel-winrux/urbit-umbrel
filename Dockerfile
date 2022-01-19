@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM debian:latest
 #FROM python:3.8-slim-buster
 RUN apt-get update && apt-get --no-install-recommends install -y curl wget vim ca-certificates gnupg python3-pip 
@@ -6,13 +8,20 @@ COPY install-urbit.sh /tmp/install-urbit.sh
 RUN  chmod +x /tmp/install-urbit.sh && /tmp/install-urbit.sh && rm /tmp/install-urbit.sh
 
 WORKDIR /app
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 COPY ./app /app
 
-CMD ["/bin/bash"]
-#CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+EXPOSE 5000
+
+#CMD ["flask","run"]
+
+#CMD ["/bin/bash"]
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
 
 
 #COPY start-urbit.sh /usr/sbin/start-urbit.sh

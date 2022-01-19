@@ -1,5 +1,5 @@
 #!/bin/bash
-keyname=$1
+dirname=$1
 AMES_PORT=$2
 
 echo "Urbit detected a Pier named $dirname"

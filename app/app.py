@@ -5,6 +5,14 @@ import zipfile, tarfile
 import glob
 from werkzeug.utils import secure_filename
 import shlex, subprocess
+import requests
+from requests.structures import CaseInsensitiveDict
+
+urbit_url = "http://127.0.0.1:12321"
+urbit_headers = CaseInsensitiveDict()
+urbit_headers["Content-Type"] = "application/json"
+
+urbit_code_data = '{ "source": { "dojo": "+code" }, "sink": { "stdout": null } }'
 
 
 UPLOAD_KEY = './keys'
@@ -18,7 +26,7 @@ app.config['AMES_PORT'] = AMES_PORT
 
 @app.route("/")
 def hello_world():
-    return render_template('hello.html', piers=get_piers(), keys=get_keys())
+    return render_template('hello.html', piers=get_piers(), keys=get_keys(), code=get_code())
 
 
 def get_keys():
@@ -28,6 +36,14 @@ def get_keys():
 def get_piers():
     piers = glob.glob(os.path.join(app.config['UPLOAD_PIER'], '*/'))
     return piers
+
+def get_code():
+    try:
+        resp = requests.post(urbit_url, headers=urbit_headers, data=urbit_code_data)
+        print(resp)
+        return resp.json()
+    except requests.ConnectionError:
+        return None
 
 @app.route('/boot', methods=['GET','POST'])
 def boot():
