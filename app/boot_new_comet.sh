@@ -1,5 +1,5 @@
-keyname=$1
-AMES_PORT=$2
+#!/bin/bash
+AMES_PORT=$1
 
 random=$RANDOM
 echo "Urbit did not detect any user selection. Booting a comet with the random name: comet-$random."

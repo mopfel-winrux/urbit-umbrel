@@ -9,8 +9,9 @@ if [[ $DEVICE_ARCH == "aarch64" ]]; then
   apt install -y urbit:arm64 rsync
   rm -rf /var/lib/apt/lists/*
 elif [[ $DEVICE_ARCH == "x86_64" ]]; then
-  mkdir /urbit/binary
+  mkdir -p /urbit/binary
   cd /urbit/binary/
   wget --content-disposition https://urbit.org/install/linux64/latest
   tar zxvf ./linux64.tgz --strip=1
+  mv /urbit/binary/urbit* /usr/sbin/
 fi

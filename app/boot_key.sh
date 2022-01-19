@@ -1,3 +1,5 @@
+#!/bin/bash
+
 keyname=$1
 AMES_PORT=$2
 

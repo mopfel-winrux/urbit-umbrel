@@ -4,6 +4,7 @@ import os
 import zipfile, tarfile
 import glob
 from werkzeug.utils import secure_filename
+import shlex, subprocess
 
 
 UPLOAD_KEY = './keys'
@@ -43,6 +44,8 @@ def boot():
             cmd = './boot_pier.sh %s %s'%(pier, AMES_PORT)
             print(cmd)
             pass
+        cmds = shlex.split(cmd)
+        p = subprocess.Popen(cmds,start_new_session=True)
     return redirect("/")
 
 
