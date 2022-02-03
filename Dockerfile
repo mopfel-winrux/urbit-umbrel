@@ -16,10 +16,13 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 COPY ./app /app
+COPY nginx.conf /etc/nginx/conf.d/nginx.conf
+ADD start.sh /usr/bin/start.sh
+RUN chmod +x /usr/bin/start.sh
+EXPOSE 8090
 
-
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
-
+#CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+ENTRYPOINT ["/usr/bin/start.sh"]
 
 
 #COPY start-urbit.sh /usr/sbin/start-urbit.sh
