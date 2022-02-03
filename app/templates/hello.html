@@ -16,7 +16,7 @@
 <h1> Welcome to Urbit for Umbrel</h1>
 
 <h2>Select a Pier</h2>
-   <form action = "/boot" method = "POST"
+   <form action = "/launch/boot" method = "POST"
          enctype = "multipart/form-data">
          {% for pier in piers %}
          <input type="radio" name="boot" value="{{ pier }}" > {{ pier }} </input><br>
@@ -28,21 +28,21 @@
    </form>
    
 <h2>Upload a keyfile</h2>
-   <form action = "/upload_key" method = "POST" 
+   <form action = "/launch/upload_key" method = "POST" 
          enctype = "multipart/form-data">
       <input type = "file" name = "file" accept=".key" />
       <input type = "submit" value="Upload"/>
    </form> 
 
 <h2>Upload a Pier Folder</h2>
-   <form action = "/upload_pier" method = "POST" 
+   <form action = "/launch/upload_pier" method = "POST" 
          enctype = "multipart/form-data">
       <input type = "file" name = "file" accept=".tar.gz, .tar, .zip" />
       <input type = "submit" value="Upload"/>
    </form> 
 
 <h2>Boot a new Comet</h2>
-   <form action = "/boot_new_comet" method = "POST" 
+   <form action = "/launch/boot_new_comet" method = "POST" 
          enctype = "multipart/form-data">
       <p> This may take a while.... </p>
       <input type = "submit" value="Boot"/>

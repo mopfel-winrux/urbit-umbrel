@@ -15,20 +15,20 @@
 <h1> Welcome to Urbit for Umbrel</h1>
 
 You can access your currently running pier by going to port by clicking the below link </br>
-<a href="./~/login"> Access your Urbit! </a>
+<a href="/"> Access your Urbit! </a>
 
 <p> Please copy your +code to login: </br>
 <b>{{ code }} </b> </br>
 </p>
 
 
-<form action = "/reset_code" method = "POST" 
+<form action = "/launch/reset_code" method = "POST" 
          enctype = "multipart/form-data">
    <input type = "submit" value="Reset Code"/> Does not work yet
 </form> 
 </br>
 
-<form action = "/stop_urbit" method = "POST" 
+<form action = "/launch/stop_urbit" method = "POST" 
          enctype = "multipart/form-data">
    <input type = "submit" value="Stop Urbit"/>
 </form> 
