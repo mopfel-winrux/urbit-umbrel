@@ -1,13 +1,13 @@
 version: "3.3"
 services:
   urbit-umbrel:
-    build: .
+    image: mopfelwinrux/urbit-umbrel:staging
     ports:
-      - "5000:5000"
       - "34343:34343"
-      - "50080:80"
       - "8090:8090"
     volumes:
-      - ./app:/app
+      - /mnt/data/urbit-umbrel/piers:/data/piers
+      - /mnt/data/urbit-umbrel/keys:/data/keys
     environment:
       FLASK_ENV: development
+      FLASK_APP: app

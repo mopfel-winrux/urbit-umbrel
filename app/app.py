@@ -26,8 +26,8 @@ urbit_code_data = '{ "source": { "dojo": "+code" }, "sink": { "stdout": null } }
 urbit_resetcode_data = '{ "source": { "dojo": "+hood/code %reset" }, "sink": { "app": "hood" } }'
 
 
-UPLOAD_KEY = './keys'
-UPLOAD_PIER = './piers'
+UPLOAD_KEY = '/data/keys'
+UPLOAD_PIER = '/data/piers'
 AMES_PORT = 34343
 
 app = Flask(__name__)
