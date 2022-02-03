@@ -69,26 +69,6 @@ def reset_code():
             pass
     return redirect("/")
 
-#@app.route('/<path:path>',methods=['GET','POST','DELETE'])
-def proxy(path):
-    SITE_NAME="http://localhost:80/"
-    if request.method=='GET':
-        resp = requests.get(f'{SITE_NAME}{path}')
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
-        response = Response(resp.content, resp.status_code, headers)
-        return response
-    elif request.method=='POST':
-        resp = requests.post(f'{SITE_NAME}{path}',json=request.get_json())
-        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
-        response = Response(resp.content, resp.status_code, headers)
-        return response
-    elif request.method=='DELETE':
-        resp = requests.delete(f'{SITE_NAME}{path}').content
-        response = Response(resp.content, resp.status_code, headers)
-        return response
-
 
 def get_keys():
     keys = glob.glob(os.path.join(app.config['UPLOAD_KEY'], '*.key'))
