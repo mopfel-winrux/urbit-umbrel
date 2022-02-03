@@ -17,12 +17,6 @@ RUN pip3 install -r requirements.txt
 
 COPY ./app /app
 
-RUN unlink /etc/nginx/sites-enabled/default
-COPY reverse_proxy.conf /etc/nginx/sites-available/reverse_proxy.conf
-RUN ln -s /etc/nginx/sites-available/reverse_proxy.conf /etc/nginx/sites-enabled/reverse_proxy.conf
-RUN nginx -t
-RUN service nginx restart
-
 
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
 
