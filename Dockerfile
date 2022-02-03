@@ -1,9 +1,10 @@
 # syntax=docker/dockerfile:1
 
-FROM debian:latest
-#FROM python:3.8-slim-buster
-RUN apt-get update && apt-get --no-install-recommends install -y curl wget vim ca-certificates gnupg python3-pip 
+FROM debian:buster-slim
 
+#FROM python:3.8-slim-buster
+
+RUN apt-get update && apt-get --no-install-recommends install -y curl wget vim ca-certificates gnupg python3-pip procps nginx
 COPY install-urbit.sh /tmp/install-urbit.sh
 RUN  chmod +x /tmp/install-urbit.sh && /tmp/install-urbit.sh && rm /tmp/install-urbit.sh
 
@@ -16,12 +17,15 @@ RUN pip3 install -r requirements.txt
 
 COPY ./app /app
 
-EXPOSE 5000
+RUN unlink /etc/nginx/sites-enabled/default
+COPY reverse_proxy.conf /etc/nginx/sites-available/reverse_proxy.conf
+RUN ln -s /etc/nginx/sites-available/reverse_proxy.conf /etc/nginx/sites-enabled/reverse_proxy.conf
+RUN nginx -t
+RUN service nginx restart
 
-#CMD ["flask","run"]
 
-#CMD ["/bin/bash"]
 CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+
 
 
 #COPY start-urbit.sh /usr/sbin/start-urbit.sh

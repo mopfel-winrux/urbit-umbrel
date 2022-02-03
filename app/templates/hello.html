@@ -1,5 +1,18 @@
 <!doctype html>
 <title>Urbit for Umbrel</title>
+
+<script>
+   function timedRefresh(timeoutPeriod) {
+     setTimeout("location.reload(true);",timeoutPeriod);
+   }
+   {% if timeout %}
+   window.onload = timedRefresh({{ timeout }});
+   {% else %}
+   window.onload = timedRefresh(60000);
+   {% endif %}
+</script>
+
+
 <h1> Welcome to Urbit for Umbrel</h1>
 
 <h2>Select a Pier</h2>
@@ -14,12 +27,6 @@
          <input type = "submit" value="Boot" name="boot_button"/>
    </form>
    
-   {% if code %}
-   <h3> Current Pier's +code </h3>
-      <p> +code for currently running pier is: {{ code }} </p>
-
-   {% endif %}
-
 <h2>Upload a keyfile</h2>
    <form action = "/upload_key" method = "POST" 
          enctype = "multipart/form-data">

@@ -4,8 +4,8 @@ services:
     build: .
     ports:
       - "5000:5000"
-      - "12321:12321"
-      - "80:80"
+      - "34343:34343"
+      - "50080:80"
     volumes:
       - ./app:/app
     environment:

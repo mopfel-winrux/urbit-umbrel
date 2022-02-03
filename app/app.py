@@ -1,4 +1,4 @@
-from flask import Flask, flash, request, redirect, url_for, send_from_directory
+from flask import Flask, flash, request, redirect, url_for, send_from_directory, Response
 from flask import render_template
 import os
 import zipfile, tarfile
@@ -7,12 +7,23 @@ from werkzeug.utils import secure_filename
 import shlex, subprocess
 import requests
 from requests.structures import CaseInsensitiveDict
+import signal, sys
+
+
+def signal_handler(sig, frame):
+    print("Exiting gracefully")
+    cmds = shlex.split("./kill_urbit.sh")
+    print(cmds)
+    p = subprocess.Popen(cmds,shell=True)
+    sys.exit(0)
+
 
 urbit_url = "http://127.0.0.1:12321"
 urbit_headers = CaseInsensitiveDict()
 urbit_headers["Content-Type"] = "application/json"
 
 urbit_code_data = '{ "source": { "dojo": "+code" }, "sink": { "stdout": null } }'
+urbit_resetcode_data = '{ "source": { "dojo": "+hood/code %reset" }, "sink": { "app": "hood" } }'
 
 
 UPLOAD_KEY = './keys'
@@ -24,9 +35,59 @@ app.config['UPLOAD_KEY'] = UPLOAD_KEY
 app.config['UPLOAD_PIER'] = UPLOAD_PIER
 app.config['AMES_PORT'] = AMES_PORT
 
+timeout = None
 @app.route("/")
-def hello_world():
-    return render_template('hello.html', piers=get_piers(), keys=get_keys(), code=get_code())
+def hello():
+    global timeout
+
+    code = get_code()
+    
+    used_timeout = timeout
+    timeout = None
+
+    if code == None:
+        return render_template('hello.html', piers=get_piers(), keys=get_keys(), code=code, timeout=used_timeout)
+    else:
+        return render_template('urbit_control.html', code=code, timeout=used_timeout)
+
+@app.route('/stop_urbit', methods=['GET','POST'])
+def stop_urbit():
+    if request.method == 'POST':
+        cmds = shlex.split("./kill_urbit.sh")
+        print(cmds)
+        p = subprocess.Popen(cmds,shell=True)
+        timeout = 10000
+    
+    return redirect("/")
+
+@app.route('/reset_code', methods=['GET','POST'])
+def reset_code():
+    if request.method == 'POST':
+        try:
+            resp = requests.post(urbit_url, headers=urbit_headers, data=urbit_resetcode_data)
+        except requests.ConnectionError:
+            pass
+    return redirect("/")
+
+#@app.route('/<path:path>',methods=['GET','POST','DELETE'])
+def proxy(path):
+    SITE_NAME="http://localhost:80/"
+    if request.method=='GET':
+        resp = requests.get(f'{SITE_NAME}{path}')
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in  resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers)
+        return response
+    elif request.method=='POST':
+        resp = requests.post(f'{SITE_NAME}{path}',json=request.get_json())
+        excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+        headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers)
+        return response
+    elif request.method=='DELETE':
+        resp = requests.delete(f'{SITE_NAME}{path}').content
+        response = Response(resp.content, resp.status_code, headers)
+        return response
 
 
 def get_keys():
@@ -40,7 +101,6 @@ def get_piers():
 def get_code():
     try:
         resp = requests.post(urbit_url, headers=urbit_headers, data=urbit_code_data)
-        print(resp)
         return resp.json()
     except requests.ConnectionError:
         return None
@@ -50,18 +110,18 @@ def boot():
     if request.method == 'POST':
         pier = request.form['boot']
         if pier.endswith('key'):
-            #TODO Boot up a new pier with keyfile
+            # Boot up a new pier with keyfile
             cmd = './boot_key.sh %s %s'%(pier, AMES_PORT)
-            print(cmd)
+            timeout = 60*5*1000
             
             pass
         elif pier.endswith('/'):
-            #TODO Boot up the old pier
+            # Boot up the old pier
             cmd = './boot_pier.sh %s %s'%(pier, AMES_PORT)
-            print(cmd)
+            timeout = 10000
             pass
         cmds = shlex.split(cmd)
-        p = subprocess.Popen(cmds,start_new_session=True)
+        p = subprocess.Popen(cmds)
     return redirect("/")
 
 
@@ -69,7 +129,9 @@ def boot():
 def boot_new_comet():
     cmd = './boot_new_comet.sh %s'%(AMES_PORT)
     print(cmd)
-    # TODO: Write code that calls urbit comet bootup
+    cmds = shlex.split(cmd)
+    p = subprocess.Popen(cmds)
+    timeout = 20*5*1000
     return redirect("/")
 
 @app.route('/upload_key', methods=['GET', 'POST'])
