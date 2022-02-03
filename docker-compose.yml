@@ -1,11 +1,12 @@
-version: "3.9"
+version: "3.3"
 services:
-  web:
+  urbit-umbrel:
     build: .
     ports:
       - "5000:5000"
       - "34343:34343"
       - "50080:80"
+      - "8090:8090"
     volumes:
       - ./app:/app
     environment:
