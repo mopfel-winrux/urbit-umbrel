@@ -41,7 +41,7 @@ def hello():
     global timeout
 
     code = get_code()
-    
+
     used_timeout = timeout
     timeout = None
 
@@ -57,7 +57,7 @@ def stop_urbit():
         print(cmds)
         p = subprocess.Popen(cmds,shell=True)
         timeout = 10000
-    
+
     return redirect("/")
 
 @app.route('/reset_code', methods=['GET','POST'])
@@ -93,7 +93,7 @@ def boot():
             # Boot up a new pier with keyfile
             cmd = './boot_key.sh %s %s'%(pier, AMES_PORT)
             timeout = 60*5*1000
-            
+
             pass
         elif pier.endswith('/'):
             # Boot up the old pier
