@@ -10,5 +10,4 @@ services:
       - /mnt/data/urbit-umbrel/piers:/data/piers
       - /mnt/data/urbit-umbrel/keys:/data/keys
     environment:
-      FLASK_ENV: development
       FLASK_APP: app
