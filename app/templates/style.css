@@ -1,0 +1,59 @@
+body {
+	font-family: monospace;
+	max-width: 40em;
+}
+
+.box {
+	border: 1px solid black;
+	margin: 1em;
+	padding: 1em;
+}
+
+.indent {
+	margin-left: 1em;
+}
+
+.list {
+	list-style-type: none;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.wrap: {
+    overflow: hidden;
+    position: relative;
+}
+.bg-img {
+    background-image:url('logo.png');
+    background-size: contain;
+    align: left;
+    background-repeat:no-repeat;
+}
+
+.title {
+    border: 2px solid black;
+    margin: 1em;
+    padding: 1em;
+}
+
+h1 {
+	color: #ffffff;
+	text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+}
+
+#submit {
+    background-color: #fff;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+	border-style: outset;
+    border-radius: 2px solid #000;
+	border-color: #000;
+    color: #000;
+    font-family: monospace;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+    border:none;
+}

@@ -1,6 +1,8 @@
 <!doctype html>
+<head>
 <title>Urbit for Umbrel</title>
-
+<link rel="stylesheet" type="text/css" href="style.css"></link>
+</head>
 <script>
    function timedRefresh(timeoutPeriod) {
      setTimeout("location.reload(true);",timeoutPeriod);
@@ -12,23 +14,39 @@
    {% endif %}
 </script>
 
+<body>
+<div class="wrap">
+<div class="bg-img">
+<div class="title">
 <h1> Welcome to Urbit for Umbrel</h1>
+</div></div></div>
 
+<div>
+<div class="box">
 You can access your currently running pier by going to port by clicking the below link </br>
-<a href="/"> Access your Urbit! </a>
-
+<a href="/">Access your Urbit!➡️</a>
+</div></div>
+<div><div class="box">
 <p> Please copy your +code to login: </br>
 <b>{{ code }} </b> </br>
 </p>
+</div></div>
 
-
+<div><div class="box">
 <form action = "/launch/reset_code" method = "POST" 
          enctype = "multipart/form-data">
-   <input type = "submit" value="Reset Code"/> Does not work yet
+   <input type = "submit" value="⊙ Reset Code" id="submit" /> Does not work yet
 </form> 
 </br>
+</div></div>
 
+<div><div class="box">
 <form action = "/launch/stop_urbit" method = "POST" 
          enctype = "multipart/form-data">
-   <input type = "submit" value="Stop Urbit"/>
+   <input type = "submit" value="⊙ Stop Urbit" id="submit" />
 </form> 
+</div></div>
+<div><div class="title">
+    <h2 style="text-align:center;">(~)</h2>
+    </div></div>
+</body>
