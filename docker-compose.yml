@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   urbit-umbrel:
-    image: urbit-umbrel:latest
+    image: mopfelwinrux/urbit-umbrel:latest
     ports:
       - "34343:34343"
       - "8090:8090"
