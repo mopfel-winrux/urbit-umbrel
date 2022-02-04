@@ -17,6 +17,8 @@ def signal_handler(sig, frame):
     p = subprocess.Popen(cmds,shell=True)
     sys.exit(0)
 
+def get_pid(name):
+    return subprocess.check_output(["pgrep", name])
 
 urbit_url = "http://127.0.0.1:12321"
 urbit_headers = CaseInsensitiveDict()
@@ -36,6 +38,7 @@ app.config['UPLOAD_PIER'] = UPLOAD_PIER
 app.config['AMES_PORT'] = AMES_PORT
 
 timeout = None
+urbit_running = False
 @app.route("/")
 def hello():
     global timeout
@@ -44,9 +47,17 @@ def hello():
 
     used_timeout = timeout
     timeout = None
+    x = None
+    try:
+        x = get_pid("urbit")
+    except subprocess.CalledProcessError:
+        urbit_running = False
+    if(x != None):
+        urbit_running = True
+
 
     if code == None:
-        return render_template('hello.html', piers=get_piers(), keys=get_keys(), code=code, timeout=used_timeout)
+        return render_template('hello.html', piers=get_piers(), keys=get_keys(), code=code, timeout=used_timeout, urbit_running = urbit_running)
     else:
         return render_template('urbit_control.html', code=code, timeout=used_timeout)
 

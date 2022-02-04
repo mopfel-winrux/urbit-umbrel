@@ -92,7 +92,11 @@ h1 {
          {% for key in keys %}
          <input type="radio" name="boot" value="{{ key }}" id="submit" > {{ key }} </input><br>
          {% endfor %}
-         <input type = "submit" value="⊙ Boot" name="boot_button" id="submit" />
+         <input type = "submit" value="⊙ Boot" name="boot_button" id="submit" 
+                                                                  {% if urbit_running %}
+                                                                  disabled
+                                                                  {% endif %}
+         />
    </form>
 </div></div>
 
@@ -121,7 +125,11 @@ h1 {
    <form action = "/launch/boot_new_comet" method = "POST" 
          enctype = "multipart/form-data">
       <p> This may take a while.... </p>
-      <input type = "submit" value="⊙ Boot" id="submit" />
+      <input type = "submit" value="⊙ Boot" id="submit" 
+                                                      {% if urbit_running %}
+                                                      disabled
+                                                      {% endif %}
+      />
    </form>
 </div></div>
 <div><div class="title">
