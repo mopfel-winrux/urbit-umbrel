@@ -150,10 +150,9 @@ h1 {
 </div></div>
 <div><div class="title"><br><br>
     <h2 style="text-align:center;">
-{% if urbit_running %}<div class="effect">
-         {% endif %}(~)
-{% if urbit_running %}</div>
-         {% endif %}
+    <div{% if urbit_running %}class="effect"{% endif %}>
+    (~)
+    </div>
 </h2>
 </div></div>
 </body>
