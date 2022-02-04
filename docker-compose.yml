@@ -6,8 +6,8 @@ services:
       - "34343:34343"
       - "8090:8090"
     volumes:
-      - .app/piers:/data/piers
-      - .app/keys:/data/keys
+      - /mnt/data/urbit-umbrel/piers:/data/piers
+      - /mnt/data/urbit-umbrel/keys:/data/keys
     environment:
       FLASK_ENV: development
       FLASK_APP: app
