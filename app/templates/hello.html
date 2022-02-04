@@ -148,11 +148,12 @@ h1 {
       />
    </form>
 </div></div>
-<div><div class="title"><br><br>
+<div><div class="title"><br>
     <h2 style="text-align:center;">
-    <div{% if urbit_running %}class="effect"{% endif %}>
-    (~)
-    </div>
-</h2>
+{% if urbit_running %}<div class="effect">
+         {% endif %}(~)
+{% if urbit_running %}</div>
+         {% endif %}
+    </h2>
 </div></div>
 </body>
