@@ -37,6 +37,7 @@ body {
 }
 
 .title {
+    text-align: center;
     border: 2px solid black;
     margin: 1em;
     padding: 1em;
@@ -60,6 +61,21 @@ h1 {
     text-decoration: underline;
     cursor: pointer;
     border:none;
+}
+.effect {
+    display: inline-block;
+    margin: 0px;
+    width: 0px;
+    height: 0px;
+    background: #fff;
+    animation-name: spin;
+    animation-duration: 1500ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
 }
 </style>
 </head>
@@ -97,9 +113,6 @@ h1 {
                                                                   disabled
                                                                   {% endif %}
          />
-         {% if urbit_running %}
-         <img src="/launch/static/loading.gif" height=20em width=20em/>
-         {% endif %}
    </form>
 </div></div>
 
@@ -135,7 +148,12 @@ h1 {
       />
    </form>
 </div></div>
-<div><div class="title">
-    <h2 style="text-align:center;">(~)</h2>
+<div><div class="title"><br><br>
+    <h2 style="text-align:center;">
+{% if urbit_running %}<div class="effect">
+         {% endif %}(~)
+{% if urbit_running %}</div>
+         {% endif %}
+</h2>
 </div></div>
 </body>
