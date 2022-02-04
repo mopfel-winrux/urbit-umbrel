@@ -1,13 +1,13 @@
 version: "3.3"
 services:
   urbit-umbrel:
-    image: mopfelwinrux/urbit-umbrel:staging
+    image: urbit-umbrel:staging
     ports:
       - "34343:34343"
       - "8090:8090"
     volumes:
-      - /mnt/data/urbit-umbrel/piers:/data/piers
-      - /mnt/data/urbit-umbrel/keys:/data/keys
+      - .app/piers:/data/piers
+      - .app/keys:/data/keys
     environment:
       FLASK_ENV: development
       FLASK_APP: app
