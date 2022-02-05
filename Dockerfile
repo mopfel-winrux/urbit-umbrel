@@ -21,9 +21,9 @@ ENV FLASK_RUN_HOST=0.0.0.0
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY ./server.js /src/
 COPY ./app /tmp/app
 RUN mv /urbit-bitcoin-rpc/* /
+COPY server.js /src/
 RUN npm install express
 RUN npm audit fix
 COPY nginx.conf /etc/nginx/conf.d/nginx.conf
