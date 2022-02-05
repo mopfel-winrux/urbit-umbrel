@@ -1,6 +1,7 @@
 version: "3.3"
 services:
   urbit-umbrel:
+    build: .
     image: mopfelwinrux/urbit-umbrel:latest
     ports:
       - "34343:34343"
