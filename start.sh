@@ -6,6 +6,9 @@ export ELECTRUM_PORT=$ELECTRUM_PORT
 export BITCOIN_RPC_AUTH=$BITCOIN_RPC_AUTH
 export BITCOIN_RPC_PASS=$BITCOIN_RPC_PASS
 export PROXY_PORT=50002
+mkdir -p ${APP_DATA_DIR}/app
+mkdir -p ${APP_DATA_DIR}/app/piers
+mkdir -p ${APP_DATA_DIR}/app/keys
 cp -r /tmp/app/ /app
 nginx -c /etc/nginx/conf.d/nginx.conf
 cd /app
