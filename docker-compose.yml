@@ -8,8 +8,8 @@ services:
       - "8090:8090"
       - "50002:50002"
     volumes:
-      - ./app/piers:/data/piers
-      - ./app/keys:/data/keys
+      - ${APP_DATA_DIR}/piers:/data/piers
+      - ${APP_DATA_DIR}/keys:/data/keys
     environment:
       FLASK_APP: app
       ELECTRUM_IP: $ELECTRUM_IP
