@@ -2,12 +2,19 @@ version: "3.3"
 services:
   urbit-umbrel:
     build: .
-    image: mopfelwinrux/urbit-umbrel:latest
+    image: urbit-umbrel:latest
     ports:
       - "34343:34343"
       - "8090:8090"
+      - "50002:50002"
     volumes:
-      - /mnt/data/urbit-umbrel/piers:/data/piers
-      - /mnt/data/urbit-umbrel/keys:/data/keys
+      - ./app/piers:/data/piers
+      - ./app/keys:/data/keys
     environment:
       FLASK_APP: app
+      ELECTRUM_IP: $ELECTRUM_IP
+      ELECTRUM_PORT: $ELECTRUM_PORT
+      BITCOIN_IP: $BITCOIN_IP
+      BITCOIN_RPC_PORT: $BITCOIN_RPC_PORT
+      BITCOIN_RPC_USER: $BITCOIN_RPC_USER
+      BITCOIN_RPC_PASS: $BITCOIN_RPC_PASS

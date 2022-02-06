@@ -37,6 +37,7 @@ body {
 }
 
 .title {
+    text-align: center;
     border: 2px solid black;
     margin: 1em;
     padding: 1em;
@@ -61,6 +62,21 @@ h1 {
     cursor: pointer;
     border:none;
 }
+.effect {
+    display: inline-block;
+    margin: 0px;
+    width: 0px;
+    height: 0px;
+    background: #fff;
+    animation-name: spin;
+    animation-duration: 1500ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}
 </style>
 </head>
 <script>
@@ -83,9 +99,20 @@ h1 {
 
 <div>
 <div class="box">
-<h2>Select a Pier</h2>
+    <p><a href="https://urbit.org/">Urbit</a> is an encrypted 
+    peer-to-peer network of personal servers, built out of a 
+    new kind of computer, to create a new kind of internet.
+    </p>
+    <p><a href="https://urbit.org/using">User guide</a> | 
+    <a href="https://urbit.org/docs">Developer docs</a></p>
+</div></div>
+
+<div>
+<div class="box">
+<h2>Select a pier</h2>
    <form action = "/launch/boot" method = "POST"
          enctype = "multipart/form-data">
+       <p>Boot your existing pier or uploaded keyfile here.</p>
          {% for pier in piers %}
          <input type="radio" name="boot" value="{{ pier }}" id="submit" > {{ pier }} </input><br>
          {% endfor %}
@@ -97,26 +124,25 @@ h1 {
                                                                   disabled
                                                                   {% endif %}
          />
-         {% if urbit_running %}
-         <img src="/launch/static/loading.gif" height=20em width=20em/>
-         {% endif %}
    </form>
 </div></div>
 
 <div class="box">
 <div>   
 <h2>Upload a keyfile</h2>
-   <form action = "/launch/upload_key" method = "POST" enctype = "multipart/form-data" id="submit" />
-      <input type = "file" name = "file" accept=".key" id="submit" />
-      <input type = "submit" value="⊙ Upload" id="submit" />
-   </form> 
+    <p>Upload a keyfile from <a href="https://bridge.urbit.org">
+        Bridge</a> or a <a href="https://urbit.org/using/os/basics#moons">moon</a>.</p>
+    <form action = "/launch/upload_key" method = "POST" enctype = "multipart/form-data" id="submit" />
+<input type = "file" name = "file" accept=".key" id="submit" />
+<input type = "submit" value="⊙ Upload" id="submit" /></form> 
 </div></div>
 
 <div class="box">
 <div>
-<h2>Upload a Pier Folder</h2>
+<h2>Upload a pier folder</h2>
    <form action = "/launch/upload_pier" method = "POST" 
          enctype = "multipart/form-data">
+      <p>Upload a zipped or tar'd pier folder from a booted ship.</p>
       <input type = "file" name = "file" accept=".tar.gz, .tar, .zip" />
       <input type = "submit" value="⊙ Upload" id="submit" />
    </form> 
@@ -124,10 +150,11 @@ h1 {
 
 <div class="box">
 <div>
-<h2>Boot a new Comet</h2>
+<h2>Boot a new comet</h2>
    <form action = "/launch/boot_new_comet" method = "POST" 
          enctype = "multipart/form-data">
-      <p> This may take a while.... </p>
+       <p>Don't have an ID? Comets are disposable free identities.</p> 
+      <p>This may take a while.... </p>
       <input type = "submit" value="⊙ Boot" id="submit" 
                                                       {% if urbit_running %}
                                                       disabled
@@ -135,7 +162,12 @@ h1 {
       />
    </form>
 </div></div>
-<div><div class="title">
-    <h2 style="text-align:center;">(~)</h2>
+<div><div class="title"><br>
+    <h2 style="text-align:center;">
+{% if urbit_running %}<div class="effect">
+         {% endif %}(~)
+{% if urbit_running %}</div>
+         {% endif %}
+    </h2>
 </div></div>
 </body>
