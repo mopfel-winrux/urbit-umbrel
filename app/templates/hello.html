@@ -78,6 +78,16 @@ h1 {
     to {transform:rotate(360deg);}
 }
 </style>
+    <link rel="stylesheet" 
+     href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/dropzone.min.css"/>
+
+    <link rel="stylesheet" 
+     href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/basic.min.css"/>
+
+    <script type="application/javascript" 
+     src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/min/dropzone.min.js">
+    </script>
+
 </head>
 <script>
    function timedRefresh(timeoutPeriod) {
@@ -86,7 +96,6 @@ h1 {
    {% if timeout %}
    window.onload = timedRefresh({{ timeout }});
    {% else %}
-   window.onload = timedRefresh(60000);
    {% endif %}
 </script>
 
@@ -140,12 +149,21 @@ h1 {
 <div class="box">
 <div>
 <h2>Upload a pier folder</h2>
-   <form action = "/launch/upload_pier" method = "POST" 
-         enctype = "multipart/form-data">
-      <p>Upload a zipped or tar'd pier folder from a booted ship.</p>
-      <input type = "file" name = "file" accept=".tar.gz, .tar, .zip" />
-      <input type = "submit" value="⊙ Upload" id="submit" />
-   </form> 
+   <p> When finished please refresh page. </p>
+<form method="POST" action='/launch/upload_pier' class="dropzone dz-clickable" 
+      id="dropper" enctype="multipart/form-data">
+</form>
+
+<script type="application/javascript">
+   Dropzone.options.dropper = {
+      paramName: 'file',
+      chunking: true,
+      forceChunking: true,
+      url: '/launch/upload_pier',
+      maxFilesize: 11000000, // megabytes
+      chunkSize: 50000000 // bytes
+      }
+</script>
 </div></div>
 
 <div class="box">
