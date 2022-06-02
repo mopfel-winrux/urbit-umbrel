@@ -2,7 +2,7 @@ version: "3.3"
 services:
   urbit-umbrel:
     build: .
-    image: mopfelwinrux/urbit-umbrel:latest
+    image: mopfelwinrux/urbit-umbrel:latest@sha256:ea23739f85ec1ad0540fd900c36113058b372dcc9f4dc038e1d689040d01b525
     ports:
       - "34343:34343"
       - "8090:8090"
@@ -11,4 +11,5 @@ services:
       - ${APP_DATA_DIR}/keys:/data/keys
     environment:
       FLASK_APP: app
+      FLASK_ENV: development
       APP_PASSWORD: ${APP_PASSWORD}
