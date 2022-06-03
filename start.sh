@@ -14,7 +14,7 @@ else
    export APP_PASSWORD=$APP_PASSWORD
 fi
 
-
+/tmp/install-urbit.sh
 
 cp -r /tmp/app/ /app
 mkdir -p /etc/apache2
