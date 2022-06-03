@@ -8,7 +8,7 @@ ARG GID=1000
 ARG username=umbrel
 RUN apt-get update && apt-get --no-install-recommends install -y curl wget vim ca-certificates gnupg python3-pip procps nginx apt-utils sudo git apache2-utils
 COPY install-urbit.sh /tmp/install-urbit.sh
-RUN  chmod +x /tmp/install-urbit.sh && /tmp/install-urbit.sh && rm /tmp/install-urbit.sh
+RUN  chmod +x /tmp/install-urbit.sh
 
 ENV FLASK_APP=app
 ENV FLASK_RUN_HOST=0.0.0.0
