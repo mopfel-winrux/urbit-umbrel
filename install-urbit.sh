@@ -4,8 +4,8 @@ DEVICE_ARCH=$(uname -m)
 if [[ $DEVICE_ARCH == "aarch64" ]]; then
   mkdir -p /urbit/binary
   cd /urbit/binary/
-  wget https://github.com/botter-nidnul/urbit/releases/download/urbit-v1.10-aarch64-linux/urbit-v1.10-aarch64-linux.tgz
-  tar zxvf ./urbit-v1.10-aarch64-linux.tgz --strip=1
+  wget https://github.com/urbit/urbit/releases/download/urbit-v1.12/linux-aarch64.tgz
+  tar zxvf ./linux-aarch64.tgz --strip=1
   mv /urbit/binary/urbit /usr/sbin/
 
 elif [[ $DEVICE_ARCH == "x86_64" ]]; then
