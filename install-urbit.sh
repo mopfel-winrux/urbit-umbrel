@@ -1,17 +1,11 @@
 #!/bin/bash
 set -e
 DEVICE_ARCH=$(uname -m)
+mkdir -p /urbit/binary
+cd /urbit/binary/
 if [[ $DEVICE_ARCH == "aarch64" ]]; then
-  mkdir -p /urbit/binary
-  cd /urbit/binary/
-  wget https://github.com/botter-nidnul/urbit/releases/download/urbit-v1.10-aarch64-linux/urbit-v1.10-aarch64-linux.tgz
-  tar zxvf ./urbit-v1.10-aarch64-linux.tgz --strip=1
-  mv /urbit/binary/urbit /usr/sbin/
-
+  curl -L https://urbit.org/install/linux-aarch64/latest | tar xzk --strip=1
 elif [[ $DEVICE_ARCH == "x86_64" ]]; then
-  mkdir -p /urbit/binary
-  cd /urbit/binary/
-  wget --content-disposition https://urbit.org/install/linux64/latest
-  tar zxvf ./linux64.tgz --strip=1
-  mv /urbit/binary/urbit* /usr/sbin/
+  curl -L https://urbit.org/install/linux64/latest | tar xzk --strip=1
 fi
+mv /urbit/binary/urbit /usr/sbin/
