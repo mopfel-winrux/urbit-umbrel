@@ -6,7 +6,18 @@ body {
     font-family: monospace;
     max-width: 40em;
 }
-
+a:link {
+    color: #000;
+}
+a:visited {
+    color: #000;
+}
+a:hover {
+    color: #000;
+}
+a:active {
+    color: #000;
+}
 .box {
     border: 1px solid black;
     margin: 1em;
@@ -49,6 +60,20 @@ h1 {
 }
 
 #submit {
+    background-color: #fff;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-style: outset;
+    border-radius: 2px solid #000;
+    border-color: #000;
+    color: #000;
+    font-family: monospace;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+    border:1px solid;
+}
+#form {
     background-color: #fff;
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
@@ -121,7 +146,7 @@ h1 {
 <div class="box">
 <h2>Select a pier</h2>
    <form action = "/launch/boot" method = "POST"
-         enctype = "multipart/form-data">
+         enctype = "multipart/form-data" id="form">
        <p>Boot your existing pier or uploaded keyfile here.</p>
        <p>The keyfile must be your ship's name.<br>
         (example: winder-dapset.key)</p>
