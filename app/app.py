@@ -126,10 +126,10 @@ def boot():
 @app.route('/boot_new_comet', methods=['GET', 'POST'])
 def boot_new_comet():
     loom = request.form['loom']
-        if loom != None:
-            LOOM_VALUE = int(loom)
-        else:
-            LOOM_VALUE = 32
+    if loom != None:
+        LOOM_VALUE = int(loom)
+    else:
+        LOOM_VALUE = 32
     cmd = './boot_new_comet.sh %s %s'%(AMES_PORT, LOOM_VALUE)
     print(cmd)
     cmds = shlex.split(cmd)
