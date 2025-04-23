@@ -31,11 +31,13 @@ urbit_resetcode_data = '{ "source": { "dojo": "+hood/code %reset" }, "sink": { "
 UPLOAD_KEY = '/data/keys'
 UPLOAD_PIER = '/data/piers'
 AMES_PORT = 34343
+LOOM_VALUE = 32
 
 app = Flask(__name__)
 app.config['UPLOAD_KEY'] = UPLOAD_KEY
 app.config['UPLOAD_PIER'] = UPLOAD_PIER
 app.config['AMES_PORT'] = AMES_PORT
+app.config['LOOM_VALUE'] = LOOM_VALUE
 
 timeout = None
 urbit_running = False
@@ -57,7 +59,7 @@ def hello():
 
 
     if code == None:
-        return render_template('hello.html', piers=get_piers(), keys=get_keys(), code=code, timeout=used_timeout, urbit_running = urbit_running)
+        return render_template('hello.html', piers=get_piers(), keys=get_keys(), loom_values=[31,32,33], code=code, timeout=used_timeout, urbit_running = urbit_running)
     else:
         return render_template('urbit_control.html', code=code, timeout=used_timeout)
 
@@ -100,15 +102,20 @@ def get_code():
 def boot():
     if request.method == 'POST':
         pier = request.form['boot']
+        loom = request.form['loom']
+        if loom != None:
+            LOOM_VALUE = int(loom)
+        else:
+            LOOM_VALUE = 32
         if pier.endswith('key'):
             # Boot up a new pier with keyfile
-            cmd = './boot_key.sh %s %s'%(pier, AMES_PORT)
+            cmd = './boot_key.sh %s %s %s'%(pier, AMES_PORT, LOOM_VALUE)
             timeout = 60*5*1000
 
             pass
         elif pier.endswith('/'):
             # Boot up the old pier
-            cmd = './boot_pier.sh %s %s'%(pier, AMES_PORT)
+            cmd = './boot_pier.sh %s %s %s'%(pier, AMES_PORT, LOOM_VALUE)
             timeout = 10000
             pass
         cmds = shlex.split(cmd)
@@ -118,7 +125,12 @@ def boot():
 
 @app.route('/boot_new_comet', methods=['GET', 'POST'])
 def boot_new_comet():
-    cmd = './boot_new_comet.sh %s'%(AMES_PORT)
+    loom = request.form['loom']
+    if loom != None:
+        LOOM_VALUE = int(loom)
+    else:
+        LOOM_VALUE = 32
+    cmd = './boot_new_comet.sh %s %s'%(AMES_PORT, LOOM_VALUE)
     print(cmd)
     cmds = shlex.split(cmd)
     p = subprocess.Popen(cmds)
