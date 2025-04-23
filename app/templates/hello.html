@@ -156,6 +156,9 @@ h1 {
          {% for key in keys %}
          <input type="radio" name="boot" value="{{ key }}" id="submit" > {{ key }} </input><br>
          {% endfor %}
+
+         <p>Select how much loom you want to allocate to this ship.</p>
+         <p>The size is specified in exponents of 2. The default is 31 (2GB), minimum is 20 (1MB), and maximum is 33 (8GB).</p>
          {% for loom in loom_values %}
          <input type="radio" name="loom" value="{{ loom }}" id="submit" > {{ loom }} </input><br>
          {% endfor %}
