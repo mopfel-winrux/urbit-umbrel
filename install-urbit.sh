@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 DEVICE_ARCH=$(uname -m)
-VERSION="v3.2"
+VERSION="3.2"
 mkdir -p /urbit/binary
 cd /urbit/binary/
 if [[ $DEVICE_ARCH == "aarch64" ]]; then
