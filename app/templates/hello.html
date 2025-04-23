@@ -156,6 +156,9 @@ h1 {
          {% for key in keys %}
          <input type="radio" name="boot" value="{{ key }}" id="submit" > {{ key }} </input><br>
          {% endfor %}
+         {% for loom in loom_values %}
+         <input type="radio" name="boot" value="{{ loom }}" id="submit" > {{ loom }} </input><br>
+         {% endfor %}
          <input type = "submit" value="⊙ Boot" name="boot_button" id="submit" 
                                                                   {% if urbit_running %}
                                                                   disabled
