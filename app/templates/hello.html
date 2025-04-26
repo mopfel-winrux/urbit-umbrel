@@ -36,7 +36,7 @@ a:active {
     font-weight: bold;
 }
 
-.wrap: {
+.wrap {
     overflow: hidden;
     position: relative;
 }
@@ -59,19 +59,20 @@ h1 {
     text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
 }
 
+.boot-button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 #submit {
     background-color: #fff;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-style: outset;
-    border-radius: 2px solid #000;
-    border-color: #000;
     color: #000;
     font-family: monospace;
     font-size: 14px;
-    text-decoration: underline;
     cursor: pointer;
-    border:1px solid;
+}
+.ul {
+    text-decoration: underline;
 }
 #form {
     background-color: #fff;
@@ -83,7 +84,6 @@ h1 {
     color: #000;
     font-family: monospace;
     font-size: 14px;
-    text-decoration: underline;
     cursor: pointer;
     border:none;
 }
@@ -151,22 +151,19 @@ h1 {
        <p>The keyfile must be your ship's name.<br>
         (example: winder-dapset.key)</p>
          {% for pier in piers %}
-         <input type="radio" name="boot" value="{{ pier }}" id="submit" > {{ pier }} </input><br>
+         <input type="radio" name="boot" value="{{ pier }}" id="submit" class="ul"> {{ pier }} </input><br>
          {% endfor %}
          {% for key in keys %}
-         <input type="radio" name="boot" value="{{ key }}" id="submit" > {{ key }} </input><br>
+         <input type="radio" name="boot" value="{{ key }}" id="submit"  class="ul"> {{ key }} </input><br>
          {% endfor %}
 
          <p>Select how much loom you want to allocate to this ship.</p>
          <p>The size is specified in exponents of 2. The default is 31 (2GB), minimum is 20 (1MB), and maximum is 33 (8GB).</p>
          {% for loom in loom_values %}
-         <input type="radio" name="loom" value="{{ loom }}" id="submit" > {{ loom }} </input><br>
+         <input type="radio" name="loom" value="{{ loom }}" id="submit"  class="ul"> {{ loom }} </input><br>
          {% endfor %}
-         <input type = "submit" value="⊙ Boot" name="boot_button" id="submit" 
-                                                                  {% if urbit_running %}
-                                                                  disabled
-                                                                  {% endif %}
-         />
+         <input type="submit" value="⊙ Boot" name="boot_button" id="main_boot_submit" class="boot-button"
+         {% if urbit_running %}disabled{% endif %} />
    </form>
 </div></div>
 
@@ -207,12 +204,16 @@ h1 {
    <form action = "/launch/boot_new_comet" method = "POST" 
          enctype = "multipart/form-data">
        <p>Don't have an ID? Comets are disposable free identities.</p> 
-      <p>This may take a while.... </p>
-      <input type = "submit" value="⊙ Boot" id="submit" 
-                                                      {% if urbit_running %}
-                                                      disabled
-                                                      {% endif %}
+      <p>Select how much loom you want to allocate to this ship.</p>
+      {% for loom in loom_values %}
+      <input type="radio" name="loom" value="{{ loom }}" id="loom_{{ loom }}"  class="ul"> {{ loom }} </input><br>
+      {% endfor %}
+      <input type="submit" value="⊙ Boot" id="comet_submit" 
+                                                   {% if urbit_running %}
+                                                   disabled
+                                                   {% endif %}
       />
+      <p>This may take a while.... </p>
    </form>
 </div></div>
 <div><div class="title"><br>
