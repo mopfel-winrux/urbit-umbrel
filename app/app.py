@@ -41,6 +41,7 @@ app.config['LOOM_VALUE'] = LOOM_VALUE
 
 timeout = None
 urbit_running = False
+
 @app.route("/")
 def hello():
     global timeout, urbit_running 
