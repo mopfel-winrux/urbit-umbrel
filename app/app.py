@@ -43,7 +43,7 @@ timeout = None
 urbit_running = False
 @app.route("/")
 def hello():
-    global timeout
+    global timeout, urbit_running 
 
     code = get_code()
 
@@ -101,8 +101,8 @@ def get_code():
 @app.route('/boot', methods=['GET','POST'])
 def boot():
     if request.method == 'POST':
-        pier = request.form['boot']
-        loom = request.form['loom']
+        pier = request.form.get('boot')
+        loom = request.form.get('loom')
         if loom != None:
             LOOM_VALUE = int(loom)
         else:
@@ -125,7 +125,7 @@ def boot():
 
 @app.route('/boot_new_comet', methods=['GET', 'POST'])
 def boot_new_comet():
-    loom = request.form['loom']
+    loom = request.form.get('loom')
     if loom != None:
         LOOM_VALUE = int(loom)
     else:
