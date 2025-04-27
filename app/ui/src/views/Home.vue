@@ -3,6 +3,7 @@
     <status :state="state" @stop="stopUrbit" />
 
     <div v-if="!state.urbitRunning" class="grid">
+      <info />
       <upload-key   :disabled="state.urbitRunning" @done="refresh"/>
       <upload-pier  :disabled="state.urbitRunning" @done="refresh"/>
       <boot-existing :state="state" :disabled="state.urbitRunning" @boot="boot"/>
@@ -26,6 +27,7 @@ import UploadPier from '../components/UploadPier.vue'
 import BootExisting from '../components/BootExisting.vue'
 import BootComet from '../components/BootComet.vue'
 import LogTail from '../components/LogTail.vue'
+import Info from '../components/Info.vue'
 
 const state = ref({})
 const ready = ref(false)
