@@ -1,28 +1,27 @@
-# syntax=docker/dockerfile:1
-# RPC builder
 
-FROM python:3.9-slim-buster as ship-runner
+FROM alpine:3.21.3 as urb
+WORKDIR /dl
+RUN apk update
+RUN apk add curl
+COPY install-urbit.sh /dl/urbit.sh
+RUN chmod +x urbit.sh
+RUN /bin/ash /dl/urbit.sh
 
-ARG UID=1000
-ARG GID=1000
-ARG username=umbrel
-RUN apt-get update && apt-get --no-install-recommends install -y curl wget vim ca-certificates gnupg python3-pip procps nginx apt-utils sudo git apache2-utils
-COPY install-urbit.sh /tmp/install-urbit.sh
-RUN  chmod +x /tmp/install-urbit.sh
+FROM node:23-alpine3.20 AS ui
+WORKDIR /src
+COPY app/ui/ ./ui
+RUN cd ui && npm ci --silent && npm run build --silent
 
-ENV FLASK_APP=app
-ENV FLASK_RUN_HOST=0.0.0.0
+FROM golang:1.24.2-alpine3.21 AS builder
+WORKDIR /app
+COPY app/go.* ./
+RUN go mod download
+COPY app/ .
+COPY --from=ui /src/ui/dist /app/ui/dist
+RUN CGO_ENABLED=0 go build -o /server .
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
-
-COPY ./app /tmp/app
-COPY nginx.conf /etc/nginx/conf.d/nginx.conf
-RUN mkdir /data/
-ADD start.sh /usr/bin/start.sh
-RUN chmod +x /usr/bin/start.sh
-USER $USERNAME
-EXPOSE 8090
-
-ENTRYPOINT ["/usr/bin/start.sh"]
-
+FROM alpine:3.21.3
+COPY --from=builder /server /server
+COPY --from=urb /usr/sbin/urbit /usr/bin/urbit
+EXPOSE 8080
+ENTRYPOINT ["/server"]
