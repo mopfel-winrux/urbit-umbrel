@@ -37,7 +37,7 @@ var (
 	keyDir      = env("KEY_DIR", "/data/keys")
 	pierDir     = env("PIER_DIR", "/data/piers")
 	amesPort    = envInt("AMES_PORT", 34343)
-	defaultLoom = envInt("DEFAULT_LOOM", 32)
+	defaultLoom = envInt("DEFAULT_LOOM", 31)
 	loopback    = "http://127.0.0.1:12321"
 	appPwd      = env("APP_PASSWORD", "")
 	urbit       *runner
