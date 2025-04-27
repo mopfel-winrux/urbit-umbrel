@@ -36,6 +36,7 @@ const sessKey = "umbrel_user"
 var (
 	keyDir      = env("KEY_DIR", "/data/keys")
 	pierDir     = env("PIER_DIR", "/data/piers")
+	appPort     = env("APP_PORT", "8090")
 	amesPort    = envInt("AMES_PORT", 34343)
 	defaultLoom = envInt("DEFAULT_LOOM", 31)
 	loopback    = "http://127.0.0.1:12321"
@@ -198,7 +199,7 @@ func main() {
 		c.Data(200, "text/html; charset=utf-8", data)
 	})
 
-	log.Fatal(r.Run(":8090"))
+	log.Fatal(r.Run(fmt.Sprintf(":%s", appPort)))
 }
 
 func authRequired() gin.HandlerFunc {
