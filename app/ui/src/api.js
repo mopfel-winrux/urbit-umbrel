@@ -1,31 +1,63 @@
 const prefix = import.meta.env.VITE_LAUNCH_PREFIX || ''
 const toURL  = p => `${prefix}${p}`
-const cfg    = (m, body)=>({
+const cfg = (m, body) => ({
   method: m,
   credentials: 'include',
-  headers: body ? {'content-type':'application/json'} : undefined,
-  body
+  body: body || undefined
 })
 
-async function handle (resp) {
-    if (resp.status === 401) {
-      if (location.pathname !== '/login') location.replace('/login')
-      throw new Error('unauth')
-    }
-    if ([201,202,204].includes(resp.status)) return null
-    const ct = (resp.headers.get('content-type') || '').toLowerCase()
-    const hasBody = resp.headers.get('content-length') !== '0'
-    if (hasBody && ct.includes('application/json')) return resp.json()
-    return null
+async function handle(resp) {
+  if (resp.status === 401) {
+    if (location.pathname !== '/login') location.replace('/login')
+    throw new Error('unauth')
+  }
+  
+  const ct = (resp.headers.get('content-type') || '').toLowerCase()
+  const hasBody = resp.headers.get('content-length') !== '0'
+  
+  if (hasBody && ct.includes('application/json')) {
+    return resp.json()
+  }
+  
+  if (resp.status < 300) {
+    return true
+  }
+  
+  return null
 }
   
 
 export const login = pass =>
-  fetch(toURL('/api/login'), cfg('POST', JSON.stringify({user:'umbrel',pass})))
-  .then(r => r.ok)
+  fetch(toURL('/api/login'), {
+    method: 'POST',
+    credentials: 'include', 
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify({user: 'umbrel', pass})
+  })
+  .then(async r => {
+    console.log('Login response status:', r.status);
+    console.log('Login cookies:', document.cookie);
+    
+    if (r.status === 200) {
+      localStorage.setItem('authenticated', 'true');
+      return true;
+    }
+    return false;
+  });
+
+
 
 export const logout = () => fetch(toURL('/api/logout'), cfg('POST')).then(handle)
-export const getStatus = () => fetch(toURL('/api/status'), cfg('GET')).then(handle)
+export const getStatus = () => 
+  fetch(toURL('/api/status'), {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(handle);
 export const stopUrbit = () => fetch(toURL('/api/stop'),   cfg('POST')).then(handle)
 export const getLogs = () => fetch(toURL('/api/logs'), cfg('GET')).then(handle)
 

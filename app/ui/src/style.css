@@ -91,6 +91,7 @@ cursor: pointer;
 
 a {
 color: #000;
+text-decoration: none;
 }
 a:visited {
 color: #000;

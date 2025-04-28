@@ -1,13 +1,16 @@
 <template>
   <div class="wrap">
     <header class="hero">
-      <img src="./assets/logo.png" class="logo" alt="native planet logo" />
-      <div class="title">
-        <h1>Urbit for Umbrel</h1>
-        <h4>
-          <img src="https://nyc3.digitaloceanspaces.com/startram/np-tiny.png" class="inline-logo" alt="np logo" />
-          by <a href="https://nativeplanet.io">Native Planet Corp</a>
-        </h4>
+      <div class="inner-hero">
+        <img src="./assets/logo.png" class="logo" alt="native planet logo" />
+        <div class="title">
+          <h1>Urbit for Umbrel</h1>
+          <br>
+          <h4>
+            <img src="https://nyc3.digitaloceanspaces.com/startram/np-tiny.png" class="inline-logo" alt="np logo" />
+            by <a href="https://nativeplanet.io">Native Planet Corp↗</a>
+          </h4>
+        </div>
       </div>
     </header>
 
@@ -29,14 +32,23 @@
 .hero {
   display: flex;
   align-items: center;
+  justify-content: center;
+  align-content: center;
   gap: 10px;
   padding: 1rem 10px;
   border: 2px solid var(--accent);
   border-radius: 6px;
   background: var(--card-bg);
 }
+
+.inner-hero {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
 .logo {
-  width: 4rem;
+  width: 6rem;
   height: auto;
 }
 .title {

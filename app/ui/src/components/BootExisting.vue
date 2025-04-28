@@ -3,7 +3,7 @@
     <h2>Boot pier</h2>
 
     <p v-if="opts.length === 0">
-      no keyfiles or piers yet — upload one first.
+      No keyfiles or piers yet — upload one first.
     </p>
 
     <form v-else @submit.prevent="go">

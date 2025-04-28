@@ -1,8 +1,8 @@
 <template>
   <section>
     <h2>Upload keyfile</h2>
-    <p>Upload a keyfile from <a href="https://bridge.urbit.org">Bridge</a> or a <a href="https://docs.urbit.org/manual/os/basics#moons">moon</a>.</p>
-    <p><code>Don't have a planet? Buy one with BTC at <a href="https://subject.network/buy">subject.network</a></code></p>
+    <p>Upload a keyfile from <a href="https://bridge.urbit.org">Bridge↗</a> or a <a href="https://docs.urbit.org/manual/os/basics#moons">moon↗</a>.</p>
+    <p><code>Don't have a planet? Buy one with BTC at <a href="https://subject.network/buy" target="_blank">subject.network↗</a></code></p>
     <input type="file" @change="onPick" accept=".key" :disabled="disabled || busy" />
     <button @click="send" :disabled="disabled || busy || !file">⊙ upload</button>
   </section>
