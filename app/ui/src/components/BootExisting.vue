@@ -97,7 +97,6 @@ function go() {
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.5rem;
-  background-color: #f5f5f5;
   border-radius: 4px;
   margin-bottom: 0.25rem;
 }
