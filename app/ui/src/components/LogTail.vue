@@ -1,5 +1,5 @@
 <template>
-  <section v-if="log.running" style="white-space:pre-wrap">
+  <section v-if="state.urbitRunning" style="white-space:pre-wrap">
     <h2>Ship logs</h2>
     <p>uptime: {{ log.uptime }} s</p>
     <div class="logs-container">
@@ -11,6 +11,13 @@
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue'
 import { getLogs } from '../api'
+
+const props = defineProps({
+  state: {
+    type: Object,
+    default: () => ({})
+  }
+})
 
 const log = ref({ running: false })
 const logsElement = ref(null)

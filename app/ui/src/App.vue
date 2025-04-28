@@ -8,7 +8,7 @@
           <br>
           <h4>
             <img src="https://nyc3.digitaloceanspaces.com/startram/np-tiny.png" class="inline-logo" alt="np logo" />
-            by <a href="https://nativeplanet.io">Native Planet Corp↗</a>
+            by <a href="https://nativeplanet.io" target="_blank">Native Planet Corp↗</a>
           </h4>
         </div>
       </div>

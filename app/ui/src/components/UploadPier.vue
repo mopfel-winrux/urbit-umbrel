@@ -1,8 +1,8 @@
 <template>
   <section>
     <h2>Upload pier archive (zip/tar.gz/tgz)</h2>
-    <p>example:
-      <br><code>tar czf mister-dozzod.tar.gz -C ~/urbit/mister-dozzod</code>
+    <p>example for a pier at ~/urbit/mister-dozzod:
+      <br><code>tar czf mister-dozzod.tar.gz -C ~/urbit mister-dozzod</code>
     </p>
     <input
       type="file"

@@ -23,3 +23,12 @@ async function go () {
   emits('boot')
 }
 </script>
+<style scoped>
+.option {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+</style>

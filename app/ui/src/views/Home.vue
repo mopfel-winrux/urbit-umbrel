@@ -11,7 +11,7 @@
     </div>
 
     <div v-else>
-      <log-tail />
+      <log-tail :state="state" />
     </div>
   </main>
 </template>
