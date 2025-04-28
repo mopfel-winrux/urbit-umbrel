@@ -23,23 +23,41 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { login } from '../api'
+import { login, getStatus } from '../api'
 
-const pass  = ref('')
-const err   = ref(false)
-const busy  = ref(false)
+const pass = ref('')
+const err = ref(false)
+const busy = ref(false)
 const router = useRouter()
 
-async function go () {
+async function go() {
   if (!pass.value.trim()) return
   busy.value = true
-  const ok = await login(pass.value.trim())
-  busy.value = false
-
-  if (ok) router.replace('/')
-  else {
-    err.value  = true
-    pass.value = ''
+  
+  try {
+    const ok = await login(pass.value.trim())
+    
+    if (ok) {
+      console.log("Login successful, getting status...");
+      localStorage.setItem('authenticated', 'true'); 
+      
+      try {
+        await getStatus(); 
+        console.log("Status check successful, navigating to home");
+        router.replace('/');
+      } catch (error) {
+        console.error("Status check failed:", error);
+        err.value = true;
+      }
+    } else {
+      err.value = true;
+      pass.value = '';
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    err.value = true;
+  } finally {
+    busy.value = false;
   }
 }
 </script>

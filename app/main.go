@@ -147,6 +147,12 @@ func main() {
 	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{SkipPaths: []string{"/api/logs", "/api/status"}}), gin.Recovery())
 
 	store := cookie.NewStore(make([]byte, 64))
+	store.Options(sessions.Options{
+		Path:     "/",
+		MaxAge:   99999,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
 	r.Use(sessions.Sessions("umbrel", store))
 
 	api := r.Group("/api")
@@ -222,7 +228,8 @@ func login(c *gin.Context) {
 		s := sessions.Default(c)
 		s.Set(sessKey, "umbrel")
 		s.Save()
-		c.Status(200)
+		c.Header("Content-Type", "application/json")
+		c.JSON(200, gin.H{"status": "success"})
 		return
 	}
 	c.Status(401)

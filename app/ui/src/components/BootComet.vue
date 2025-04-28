@@ -1,7 +1,7 @@
 <template>
   <section>
     <h2>Boot new comet</h2>
-    <p>Don't have an ID? Comets are disposable free identities.</p> 
+    <p>Don't have an ID? <a href="https://docs.urbit.org/glossary/comet" target="_blank">Comets↗</a> are disposable free identities.</p> 
     <p>loom size</p>
     <label v-for="l in [31,32,33]" :key="l">
       <input type="radio" name="loomc" :value="l" v-model="loom" /> {{ l }}

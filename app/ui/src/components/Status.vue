@@ -1,7 +1,8 @@
 <template>
   <section v-if="state.urbitRunning">
     <p>
-      ship {{ statusLabel }}<span v-if="state.code">: <code>{{ state.code }}</code></span>
+      Ship is {{ statusLabel }}<span v-if="state.code">: <code>{{ state.code }}</code></span>
+      <span v-else-if="state.state === 'booting'" class="spinner">(~)</span>
     </p>
 
     <button v-if="state.urbitRunning" @click="stopAndRefresh">
@@ -44,4 +45,15 @@ async function launchPage() {
 
 <style scoped>
 button { margin-right: .5rem; margin-top: .5rem }
+.spinner {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: monospace;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
