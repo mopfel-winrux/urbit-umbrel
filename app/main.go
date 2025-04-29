@@ -253,10 +253,6 @@ func copyDir(src, dst string) (int, error) {
 				urbit.stop()
 				urbit = nil
 			}
-			marker := filepath.Join(sourcePath, ".extracted")
-			if err := os.WriteFile(marker, []byte{}, 0o644); err != nil {
-				return count, err
-			}
 			if err = os.MkdirAll(destPath, info.Mode()); err != nil {
 				return count, err
 			}
@@ -264,8 +260,14 @@ func copyDir(src, dst string) (int, error) {
 			if err != nil {
 				return count, err
 			}
-			count++
-			os.RemoveAll(sourcePath)
+			if filepath.Dir(sourcePath) == src {
+				marker := filepath.Join(destPath, ".extracted")
+				if err := os.WriteFile(marker, []byte{}, 0o644); err != nil {
+					return count, err
+				}
+				os.RemoveAll(sourcePath)
+				count++
+			}
 		} else {
 			if strings.HasSuffix(sourcePath, ".sock") {
 				continue
