@@ -38,7 +38,7 @@
       </div>
 
       <div class="actions">
-        <button :disabled="disabled || !path">boot</button>
+        <button :disabled="disabled || !path">⊙ boot</button>
       </div>
     </form>
   </section>

@@ -1,13 +1,13 @@
 <template>
   <section>
-    <h2>Upload pier archive (zip/tar.gz/tgz)</h2>
+    <h2>Upload pier archive (zip/tar.gz/tgz/tar)</h2>
     <p>example for a pier at ~/urbit/mister-dozzod:
       <br><code>tar czf mister-dozzod.tar.gz -C ~/urbit mister-dozzod</code>
     </p>
     <input
       type="file"
       @change="onPick"
-      accept=".zip,.tar.gz,.tgz"
+      accept=".zip,.tar.gz,.tgz,.tar"
       :disabled="disabled || busy"
     />
     <button
@@ -16,7 +16,7 @@
     >
       ⊙ upload
     </button>
-    <p v-if="progress">{{ progress }}%</p>
+    <p v-if="progress">{{ progress === 100 ? 'Please wait, extracting' : `${progress}%` }}</p>
   </section>
 </template>
 

@@ -6,7 +6,9 @@
     <label v-for="l in [31,32,33]" :key="l">
       <input type="radio" name="loomc" :value="l" v-model="loom" /> {{ l }}
     </label>
-    <button @click="go" :disabled="disabled">⊙ boot comet</button>
+    <div class="actions">
+        <button @click="go" :disabled="disabled">⊙ boot comet</button>
+    </div>
   </section>
 </template>
 
@@ -30,5 +32,10 @@ async function go () {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   margin-bottom: 0.25rem;
+}
+.actions { 
+  display: flex; 
+  justify-content: flex-end; 
+  margin-top: 1rem; 
 }
 </style>

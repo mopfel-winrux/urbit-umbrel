@@ -44,6 +44,11 @@ var (
 	urbit       *runner
 )
 
+type StoragePaths struct {
+	TempDir string
+	PierDir string
+}
+
 type runner struct {
 	cmd     *exec.Cmd
 	args    []string
@@ -52,6 +57,84 @@ type runner struct {
 	started time.Time
 	once    sync.Once
 	quit    chan struct{}
+}
+
+func init() {
+	s, _ := fs.Sub(embedded, "ui/dist")
+	webFS = s
+	storage := NewStoragePaths()
+	pierDir = storage.PierDir
+	migrateData()
+}
+
+func main() {
+	shipURL, _ := url.Parse("http://127.0.0.1:8000")
+	shipProxy := httputil.NewSingleHostReverseProxy(shipURL)
+
+	gin.SetMode(gin.ReleaseMode)
+	r := gin.New()
+	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{SkipPaths: []string{"/api/logs", "/api/status"}}), gin.Recovery())
+
+	store := cookie.NewStore(make([]byte, 64))
+	store.Options(sessions.Options{
+		Path:     "/",
+		MaxAge:   99999,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+	r.Use(sessions.Sessions("umbrel", store))
+
+	api := r.Group("/api")
+	api.POST("/login", login)
+	api.POST("/logout", logout)
+
+	authed := api.Group("/")
+	authed.Use(authRequired())
+	{
+		authed.GET("/status", status)
+		authed.GET("/logs", logs)
+		authed.POST("/boot", bootExisting)
+		authed.POST("/boot-comet", bootComet)
+		authed.POST("/stop", stopUrbit)
+		authed.POST("/upload-key", uploadKey)
+		authed.POST("/upload-pier", uploadPier)
+	}
+
+	r.StaticFS("/static", http.FS(webFS))
+
+	r.GET("/launch", func(c *gin.Context) {
+		data, _ := fs.ReadFile(webFS, "index.html")
+		c.Data(200, "text/html; charset=utf-8", data)
+	})
+	r.GET("/launch/*any", func(c *gin.Context) {
+		data, _ := fs.ReadFile(webFS, "index.html")
+		c.Data(200, "text/html; charset=utf-8", data)
+	})
+
+	r.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path
+		if strings.HasPrefix(path, "/api") ||
+			strings.HasPrefix(path, "/static") ||
+			strings.HasPrefix(path, "/launch") {
+			c.AbortWithStatus(404)
+			return
+		}
+		if urbit != nil {
+			if up, _, _, _ := urbit.snap(); up {
+				defer func() {
+					if rec := recover(); rec != nil {
+						log.Printf("proxy panic: %v", rec)
+					}
+				}()
+				shipProxy.ServeHTTP(c.Writer, c.Request)
+				return
+			}
+		}
+		data, _ := fs.ReadFile(webFS, "index.html")
+		c.Data(200, "text/html; charset=utf-8", data)
+	})
+
+	log.Fatal(r.Run(fmt.Sprintf(":%s", appPort)))
 }
 
 func newRunner(args []string) *runner {
@@ -127,10 +210,35 @@ func (r *runner) tail(rc io.ReadCloser) {
 	}
 }
 
-func init() {
-	s, _ := fs.Sub(embedded, "ui/dist")
-	webFS = s
-	migrateData()
+func NewStoragePaths() *StoragePaths {
+	tempDir := "/storage/temp"
+	pierDir := "/storage/piers"
+
+	os.MkdirAll(tempDir, 0755)
+	os.MkdirAll(pierDir, 0755)
+
+	return &StoragePaths{
+		TempDir: tempDir,
+		PierDir: pierDir,
+	}
+}
+
+func (s *StoragePaths) GetTempFilePath(filename string) string {
+	return filepath.Join(s.TempDir, filename)
+}
+
+func (s *StoragePaths) GetPierPath(pierName string) string {
+	return filepath.Join(s.PierDir, pierName)
+}
+
+func (s *StoragePaths) HasSpaceForUpload(sizeBytes uint64) (bool, uint64) {
+	var stat syscall.Statfs_t
+	if err := syscall.Statfs(s.TempDir, &stat); err != nil {
+		return false, 0
+	}
+
+	availableBytes := stat.Bavail * uint64(stat.Bsize)
+	return availableBytes > sizeBytes, availableBytes
 }
 
 func migrateData() {
@@ -261,10 +369,6 @@ func copyDir(src, dst string) (int, error) {
 				return count, err
 			}
 			if filepath.Dir(sourcePath) == src {
-				marker := filepath.Join(destPath, ".extracted")
-				if err := os.WriteFile(marker, []byte{}, 0o644); err != nil {
-					return count, err
-				}
 				os.RemoveAll(sourcePath)
 				count++
 			}
@@ -306,76 +410,6 @@ func ensureDirectories() {
 	if err := os.MkdirAll(pierDir, 0o755); err != nil {
 		panic("Must have a pier dir to function")
 	}
-}
-
-func main() {
-	shipURL, _ := url.Parse("http://127.0.0.1:8000")
-	shipProxy := httputil.NewSingleHostReverseProxy(shipURL)
-
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.New()
-	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{SkipPaths: []string{"/api/logs", "/api/status"}}), gin.Recovery())
-
-	store := cookie.NewStore(make([]byte, 64))
-	store.Options(sessions.Options{
-		Path:     "/",
-		MaxAge:   99999,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	})
-	r.Use(sessions.Sessions("umbrel", store))
-
-	api := r.Group("/api")
-	api.POST("/login", login)
-	api.POST("/logout", logout)
-
-	authed := api.Group("/")
-	authed.Use(authRequired())
-	{
-		authed.GET("/status", status)
-		authed.GET("/logs", logs)
-		authed.POST("/boot", bootExisting)
-		authed.POST("/boot-comet", bootComet)
-		authed.POST("/stop", stopUrbit)
-		authed.POST("/upload-key", uploadKey)
-		authed.POST("/upload-pier", uploadPier)
-	}
-
-	r.StaticFS("/static", http.FS(webFS))
-
-	r.GET("/launch", func(c *gin.Context) {
-		data, _ := fs.ReadFile(webFS, "index.html")
-		c.Data(200, "text/html; charset=utf-8", data)
-	})
-	r.GET("/launch/*any", func(c *gin.Context) {
-		data, _ := fs.ReadFile(webFS, "index.html")
-		c.Data(200, "text/html; charset=utf-8", data)
-	})
-
-	r.NoRoute(func(c *gin.Context) {
-		path := c.Request.URL.Path
-		if strings.HasPrefix(path, "/api") ||
-			strings.HasPrefix(path, "/static") ||
-			strings.HasPrefix(path, "/launch") {
-			c.AbortWithStatus(404)
-			return
-		}
-		if urbit != nil {
-			if up, _, _, _ := urbit.snap(); up {
-				defer func() {
-					if rec := recover(); rec != nil {
-						log.Printf("proxy panic: %v", rec)
-					}
-				}()
-				shipProxy.ServeHTTP(c.Writer, c.Request)
-				return
-			}
-		}
-		data, _ := fs.ReadFile(webFS, "index.html")
-		c.Data(200, "text/html; charset=utf-8", data)
-	})
-
-	log.Fatal(r.Run(fmt.Sprintf(":%s", appPort)))
 }
 
 func authRequired() gin.HandlerFunc {
@@ -443,9 +477,7 @@ func status(c *gin.Context) {
 			piers = append(piers, dir+"/")
 			continue
 		}
-		if _, err := os.Stat(filepath.Join(dir, ".extracted")); err == nil {
-			piers = append(piers, dir+"/")
-		}
+		piers = append(piers, dir+"/")
 	}
 	c.JSON(200, gin.H{
 		"keys":         glob(keyDir, "*.key"),
@@ -583,14 +615,16 @@ func uploadPier(c *gin.Context) {
 		return
 	}
 
-	_ = os.MkdirAll(pierDir, 0o755)
-	dst := filepath.Join(pierDir, filepath.Base(file.Filename))
+	storage := NewStoragePaths()
+
+	tempFilePath := storage.GetTempFilePath(filepath.Base(file.Filename))
+
 	i, _ := strconv.Atoi(c.PostForm("dzchunkindex"))
 	cnt, _ := strconv.Atoi(c.PostForm("dztotalchunkcount"))
 	size, _ := strconv.Atoi(c.PostForm("dztotalfilesize"))
 	off, _ := strconv.ParseInt(c.PostForm("dzchunkbyteoffset"), 10, 64)
 
-	w, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY, 0o644)
+	w, err := os.OpenFile(tempFilePath, os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		c.Status(500)
 		return
@@ -606,7 +640,7 @@ func uploadPier(c *gin.Context) {
 	if lastChunk {
 		fi, _ := w.Stat()
 		if cnt == 0 || int(fi.Size()) == size {
-			if err := extractAndClean(dst); err != nil {
+			if err := extractAndClean(tempFilePath); err != nil {
 				log.Println("extract error:", err)
 				c.Status(500)
 				return
@@ -618,14 +652,18 @@ func uploadPier(c *gin.Context) {
 }
 
 func extractAndClean(archive string) error {
+	storage := NewStoragePaths()
+
 	var cmd *exec.Cmd
 	switch {
 	case strings.HasSuffix(archive, ".zip"):
-		cmd = exec.Command("unzip", "-q", archive, "-d", pierDir)
+		cmd = exec.Command("unzip", "-q", archive, "-d", storage.PierDir)
 	case strings.HasSuffix(archive, ".tar.gz"):
-		cmd = exec.Command("tar", "xzf", archive, "-C", pierDir)
+		cmd = exec.Command("tar", "xzf", archive, "-C", storage.PierDir)
 	case strings.HasSuffix(archive, ".tgz"):
-		cmd = exec.Command("tar", "xzf", archive, "-C", pierDir)
+		cmd = exec.Command("tar", "xzf", archive, "-C", storage.PierDir)
+	case strings.HasSuffix(archive, ".tar"):
+		cmd = exec.Command("tar", "xf", archive, "-C", storage.PierDir)
 	default:
 		return fmt.Errorf("unsupported archive type: %s", filepath.Base(archive))
 	}
@@ -636,10 +674,6 @@ func extractAndClean(archive string) error {
 	base := filepath.Base(archive)
 	name := strings.TrimSuffix(strings.TrimSuffix(base, ".tar.gz"), ".zip")
 	name = strings.TrimSuffix(name, ".tgz")
-	marker := filepath.Join(pierDir, name, ".extracted")
-	if err := os.WriteFile(marker, []byte{}, 0o644); err != nil {
-		return err
-	}
 	if err := os.Remove(archive); err != nil {
 		return fmt.Errorf("could not remove archive %s: %w", archive, err)
 	}
