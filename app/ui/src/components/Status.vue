@@ -6,10 +6,10 @@
     </p>
 
     <button v-if="state.urbitRunning" @click="stopAndRefresh">
-      stop
+      ⊙ stop
     </button>
     <button v-if="state.code" @click="launchPage" :disabled="launching">
-      launch
+      ⊙ launch
     </button>
   </section>
 </template>
