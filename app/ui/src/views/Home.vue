@@ -4,10 +4,10 @@
 
     <div v-if="!state.urbitRunning" class="grid">
       <info />
-      <upload-key   :disabled="state.urbitRunning" @done="refresh"/>
-      <upload-pier  :disabled="state.urbitRunning" @done="refresh"/>
       <boot-existing :state="state" :disabled="state.urbitRunning" @boot="boot"/>
       <boot-comet :disabled="state.urbitRunning" @boot="bootComet"/>
+      <upload-key   :disabled="state.urbitRunning" @done="refresh"/>
+      <upload-pier  :disabled="state.urbitRunning" @done="refresh"/>
     </div>
 
     <div v-else>
