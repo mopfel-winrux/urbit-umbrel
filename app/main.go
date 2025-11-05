@@ -34,8 +34,8 @@ var webFS fs.FS
 const sessKey = "umbrel_user"
 
 var (
-	keyDir      = env("KEY_DIR", "/storage/keys")
-	pierDir     = env("PIER_DIR", "/storage/piers")
+	keyDir      = env("KEY_DIR", "/data/keys")
+	pierDir     = env("PIER_DIR", "/data/piers")
 	appPort     = env("APP_PORT", "8090")
 	amesPort    = envInt("AMES_PORT", 34343)
 	defaultLoom = envInt("DEFAULT_LOOM", 31)
@@ -43,11 +43,6 @@ var (
 	appPwd      = env("APP_PASSWORD", "")
 	urbit       *runner
 )
-
-type StoragePaths struct {
-	TempDir string
-	PierDir string
-}
 
 type runner struct {
 	cmd     *exec.Cmd
@@ -62,9 +57,12 @@ type runner struct {
 func init() {
 	s, _ := fs.Sub(embedded, "ui/dist")
 	webFS = s
-	storage := NewStoragePaths()
-	pierDir = storage.PierDir
-	migrateData()
+	if err := os.MkdirAll(keyDir, 0o755); err != nil {
+		panic("Must have a key dir to function")
+	}
+	if err := os.MkdirAll(pierDir, 0o755); err != nil {
+		panic("Must have a pier dir to function")
+	}
 }
 
 func main() {
@@ -210,208 +208,6 @@ func (r *runner) tail(rc io.ReadCloser) {
 	}
 }
 
-func NewStoragePaths() *StoragePaths {
-	tempDir := "/storage/temp"
-	pierDir := "/storage/piers"
-
-	os.MkdirAll(tempDir, 0755)
-	os.MkdirAll(pierDir, 0755)
-
-	return &StoragePaths{
-		TempDir: tempDir,
-		PierDir: pierDir,
-	}
-}
-
-func (s *StoragePaths) GetTempFilePath(filename string) string {
-	return filepath.Join(s.TempDir, filename)
-}
-
-func (s *StoragePaths) GetPierPath(pierName string) string {
-	return filepath.Join(s.PierDir, pierName)
-}
-
-func (s *StoragePaths) HasSpaceForUpload(sizeBytes uint64) (bool, uint64) {
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs(s.TempDir, &stat); err != nil {
-		return false, 0
-	}
-
-	availableBytes := stat.Bavail * uint64(stat.Bsize)
-	return availableBytes > sizeBytes, availableBytes
-}
-
-func migrateData() {
-	if urbit != nil {
-		urbit.stop()
-		urbit = nil
-	}
-	oldKeyDir := "/data/keys"
-	oldPierDir := "/data/piers"
-	newKeyDir := "/storage/keys"
-	newPierDir := "/storage/piers"
-	if _, err := os.Stat(oldKeyDir); os.IsNotExist(err) {
-		keyDir = newKeyDir
-		pierDir = newPierDir
-		ensureDirectories()
-		return
-	}
-	if err := os.MkdirAll(newKeyDir, 0o755); err != nil {
-		log.Printf("Cannot create new key directory at %s: %v", newKeyDir, err)
-		log.Println("Falling back to original paths")
-		keyDir = oldKeyDir
-		pierDir = oldPierDir
-		ensureDirectories()
-		return
-	}
-	if err := os.MkdirAll(newPierDir, 0o755); err != nil {
-		log.Printf("Cannot create new pier directory at %s: %v", newPierDir, err)
-		log.Println("Falling back to original paths")
-		keyDir = oldKeyDir
-		pierDir = oldPierDir
-		ensureDirectories()
-		return
-	}
-	oldKeySize, err := dirSize(oldKeyDir)
-	if err != nil {
-		log.Printf("Error calculating size of %s: %v", oldKeyDir, err)
-		keyDir = oldKeyDir
-		pierDir = oldPierDir
-		ensureDirectories()
-		return
-	}
-	oldPierSize, err := dirSize(oldPierDir)
-	if err != nil {
-		log.Printf("Error calculating size of %s: %v", oldPierDir, err)
-		keyDir = oldKeyDir
-		pierDir = oldPierDir
-		ensureDirectories()
-		return
-	}
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs(filepath.Dir(newKeyDir), &stat); err != nil {
-		log.Printf("Cannot check available space at %s: %v", newKeyDir, err)
-		keyDir = oldKeyDir
-		pierDir = oldPierDir
-		ensureDirectories()
-		return
-	}
-	availableBytes := stat.Bavail * uint64(stat.Bsize)
-	requiredBytes := oldKeySize + oldPierSize
-	if availableBytes < requiredBytes {
-		log.Printf("Not enough space for migration. Required: %d bytes, Available: %d bytes",
-			requiredBytes, availableBytes)
-		keyDir = oldKeyDir
-		pierDir = oldPierDir
-		ensureDirectories()
-		return
-	}
-	keysCount, err := copyDir(oldKeyDir, newKeyDir)
-	if err != nil {
-		log.Printf("Failed to copy keys: %v", err)
-		keyDir = oldKeyDir
-		pierDir = oldPierDir
-		ensureDirectories()
-		return
-	}
-	piersCount, err := copyDir(oldPierDir, newPierDir)
-	if err != nil {
-		log.Printf("Failed to copy piers: %v", err)
-		os.RemoveAll(newKeyDir)
-		keyDir = oldKeyDir
-		pierDir = oldPierDir
-		ensureDirectories()
-		return
-	}
-	log.Printf("Successfully migrated %d keys and %d piers to new storage location",
-		keysCount, piersCount)
-	keyDir = newKeyDir
-	pierDir = newPierDir
-}
-
-func dirSize(path string) (uint64, error) {
-	var size uint64
-	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() {
-			size += uint64(info.Size())
-		}
-		return nil
-	})
-	return size, err
-}
-
-func copyDir(src, dst string) (int, error) {
-	entries, err := os.ReadDir(src)
-	if err != nil {
-		return 0, err
-	}
-	count := 0
-	for _, entry := range entries {
-		sourcePath := filepath.Join(src, entry.Name())
-		destPath := filepath.Join(dst, entry.Name())
-		info, err := entry.Info()
-		if err != nil {
-			return count, err
-		}
-		if info.IsDir() {
-			if urbit != nil {
-				urbit.stop()
-				urbit = nil
-			}
-			if err = os.MkdirAll(destPath, info.Mode()); err != nil {
-				return count, err
-			}
-			_, err := copyDir(sourcePath, destPath)
-			if err != nil {
-				return count, err
-			}
-			if filepath.Dir(sourcePath) == src {
-				os.RemoveAll(sourcePath)
-				count++
-			}
-		} else {
-			if strings.HasSuffix(sourcePath, ".sock") {
-				continue
-			}
-			if err = copyFile(sourcePath, destPath); err != nil {
-				return count, err
-			}
-		}
-	}
-	return count, nil
-}
-
-func copyFile(src, dst string) error {
-	sourceFile, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer sourceFile.Close()
-	info, err := sourceFile.Stat()
-	if err != nil {
-		return err
-	}
-	destFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, info.Mode())
-	if err != nil {
-		return err
-	}
-	defer destFile.Close()
-	_, err = io.Copy(destFile, sourceFile)
-	return err
-}
-
-func ensureDirectories() {
-	if err := os.MkdirAll(keyDir, 0o755); err != nil {
-		panic("Must have a key dir to function")
-	}
-	if err := os.MkdirAll(pierDir, 0o755); err != nil {
-		panic("Must have a pier dir to function")
-	}
-}
-
 func authRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if sessions.Default(c).Get(sessKey) != "umbrel" {
@@ -553,7 +349,7 @@ func bootExisting(c *gin.Context) {
 			}
 		}(req.Path)
 
-	case strings.HasPrefix(req.Path, "/storage/piers/") || strings.HasPrefix(req.Path, "/data/piers/"):
+	case strings.HasPrefix(req.Path, "/data/piers/"):
 		pier := filepath.Join(pierDir, filepath.Base(req.Path))
 		startUrbit([]string{
 			"-t", "-b", "0.0.0.0",
@@ -615,16 +411,14 @@ func uploadPier(c *gin.Context) {
 		return
 	}
 
-	storage := NewStoragePaths()
-
-	tempFilePath := storage.GetTempFilePath(filepath.Base(file.Filename))
-
+	_ = os.MkdirAll(pierDir, 0o755)
+	dst := filepath.Join(pierDir, filepath.Base(file.Filename))
 	i, _ := strconv.Atoi(c.PostForm("dzchunkindex"))
 	cnt, _ := strconv.Atoi(c.PostForm("dztotalchunkcount"))
 	size, _ := strconv.Atoi(c.PostForm("dztotalfilesize"))
 	off, _ := strconv.ParseInt(c.PostForm("dzchunkbyteoffset"), 10, 64)
 
-	w, err := os.OpenFile(tempFilePath, os.O_CREATE|os.O_WRONLY, 0o644)
+	w, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		c.Status(500)
 		return
@@ -640,7 +434,7 @@ func uploadPier(c *gin.Context) {
 	if lastChunk {
 		fi, _ := w.Stat()
 		if cnt == 0 || int(fi.Size()) == size {
-			if err := extractAndClean(tempFilePath); err != nil {
+			if err := extractAndClean(dst); err != nil {
 				log.Println("extract error:", err)
 				c.Status(500)
 				return
@@ -652,18 +446,14 @@ func uploadPier(c *gin.Context) {
 }
 
 func extractAndClean(archive string) error {
-	storage := NewStoragePaths()
-
 	var cmd *exec.Cmd
 	switch {
 	case strings.HasSuffix(archive, ".zip"):
-		cmd = exec.Command("unzip", "-q", archive, "-d", storage.PierDir)
+		cmd = exec.Command("unzip", "-q", archive, "-d", pierDir)
 	case strings.HasSuffix(archive, ".tar.gz"):
-		cmd = exec.Command("tar", "xzf", archive, "-C", storage.PierDir)
+		cmd = exec.Command("tar", "xzf", archive, "-C", pierDir)
 	case strings.HasSuffix(archive, ".tgz"):
-		cmd = exec.Command("tar", "xzf", archive, "-C", storage.PierDir)
-	case strings.HasSuffix(archive, ".tar"):
-		cmd = exec.Command("tar", "xf", archive, "-C", storage.PierDir)
+		cmd = exec.Command("tar", "xzf", archive, "-C", pierDir)
 	default:
 		return fmt.Errorf("unsupported archive type: %s", filepath.Base(archive))
 	}
@@ -674,6 +464,10 @@ func extractAndClean(archive string) error {
 	base := filepath.Base(archive)
 	name := strings.TrimSuffix(strings.TrimSuffix(base, ".tar.gz"), ".zip")
 	name = strings.TrimSuffix(name, ".tgz")
+	marker := filepath.Join(pierDir, name, ".extracted")
+	if err := os.WriteFile(marker, []byte{}, 0o644); err != nil {
+		return err
+	}
 	if err := os.Remove(archive); err != nil {
 		return fmt.Errorf("could not remove archive %s: %w", archive, err)
 	}
