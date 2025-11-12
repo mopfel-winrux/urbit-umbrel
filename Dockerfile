@@ -1,4 +1,3 @@
-
 FROM alpine:3.21.3 as urb
 WORKDIR /dl
 RUN apk update
@@ -9,8 +8,17 @@ RUN /bin/ash /dl/urbit.sh
 
 FROM node:23-alpine3.20 AS ui
 WORKDIR /src
+ENV GODEBUG=http2client=0
+ENV GOPROXY=https://proxy.golang.org,direct
 COPY app/ui/ ./ui
-RUN cd ui && npm ci --silent && npm run build --silent
+WORKDIR /src/ui
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci --prefer-offline --no-audit
+RUN npm ci
+RUN npm run build
 
 FROM golang:1.24.2-alpine3.21 AS builder
 WORKDIR /app
