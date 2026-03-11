@@ -1,10 +1,14 @@
 const prefix = import.meta.env.VITE_LAUNCH_PREFIX || ''
 const toURL  = p => `${prefix}${p}`
-const cfg = (m, body) => ({
+const cfg = (m, body, headers) => ({
   method: m,
   credentials: 'include',
+  headers: headers || undefined,
   body: body || undefined
 })
+
+const jsonCfg = (m, payload) =>
+  cfg(m, JSON.stringify(payload), { 'Content-Type': 'application/json' })
 
 async function handle(resp) {
   if (resp.status === 401) {
@@ -58,14 +62,19 @@ export const getStatus = () =>
     }
   })
   .then(handle);
+export const getMigrationOptions = () =>
+  fetch(toURL('/api/migration-options'), cfg('GET')).then(handle)
 export const stopUrbit = () => fetch(toURL('/api/stop'),   cfg('POST')).then(handle)
 export const getLogs = () => fetch(toURL('/api/logs'), cfg('GET')).then(handle)
 
 export const boot = (path,loom)=>
-  fetch(toURL('/api/boot'), cfg('POST', JSON.stringify({path,loom}))).then(handle)
+  fetch(toURL('/api/boot'), jsonCfg('POST', { path, loom })).then(handle)
 
 export const bootComet = loom=>
-  fetch(toURL('/api/boot-comet'), cfg('POST', JSON.stringify({loom}))).then(handle)
+  fetch(toURL('/api/boot-comet'), jsonCfg('POST', { loom })).then(handle)
+
+export const migrateVere = (path, loom, version) =>
+  fetch(toURL('/api/migrate'), jsonCfg('POST', { path, loom, version })).then(handle)
 
 export const uploadKey = file=>{
   const f=new FormData(); f.append('file',file)

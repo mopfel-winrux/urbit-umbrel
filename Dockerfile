@@ -1,4 +1,4 @@
-FROM alpine:3.21.3 as urb
+FROM alpine:3.21.3 AS urb
 WORKDIR /dl
 RUN apk update
 RUN apk add curl
@@ -29,6 +29,7 @@ COPY --from=ui /src/ui/dist /app/ui/dist
 RUN CGO_ENABLED=0 go build -o /server .
 
 FROM alpine:3.21.3
+RUN apk add --no-cache ca-certificates
 COPY --from=builder /server /server
 COPY --from=urb /usr/sbin/urbit /usr/bin/urbit
 EXPOSE 8080
