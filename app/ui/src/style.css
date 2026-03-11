@@ -6,6 +6,8 @@
 --accent:       #2c3e50;
 --accent-lite:  #586e75;
 --accent-fg:    #ffffff;
+--chip-bg:      #fafafa;
+--chip-border:  #e1e4e8;
 }
 
 body {
@@ -80,6 +82,14 @@ border: 1px dashed var(--card-border);
 padding: .4rem .6rem;
 border-radius: 4px;
 background: #fafafa;
+}
+
+select {
+border: 1px solid var(--card-border);
+padding: .4rem .6rem;
+border-radius: 4px;
+background: #fff;
+color: var(--accent);
 }
 
 label {

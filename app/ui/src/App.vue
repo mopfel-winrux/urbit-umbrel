@@ -5,7 +5,6 @@
         <img src="./assets/logo.png" class="logo" alt="native planet logo" />
         <div class="title">
           <h1>Urbit for Umbrel</h1>
-          <br>
           <h4>
             <img src="https://nyc3.digitaloceanspaces.com/startram/np-tiny.png" class="inline-logo" alt="np logo" />
             by <a href="https://nativeplanet.io" target="_blank">Native Planet Corp↗</a>
